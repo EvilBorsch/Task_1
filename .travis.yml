@@ -9,6 +9,10 @@ os:
     - linux
     - osx
 
+branches:
+  only:
+    - gh-pages
+    
 compiler:
     # ... и с помощью GCC, и Clang
     - gcc
