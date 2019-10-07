@@ -11,7 +11,8 @@ os:
 
 branches:
   only:
-    - gh-pages
+  - gh-pages
+  - /.*/
     
 compiler:
     # ... и с помощью GCC, и Clang
