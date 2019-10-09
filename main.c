@@ -24,9 +24,9 @@ typedef struct{
     List *list[possible_target_count][possible_region_count];         //двумерный массив,внутри каждой ячейки которого наши продвинутые List'ы
 } Data_base;
 
-void __add_to_List(List *li,const Tower* el);
-void __print_Tower(const Tower* tw);
-void __print_List(const List *li);
+void add_to_list(List *li,const Tower* el);
+void print_Tower(const Tower* tw);
+void print_List(const List *li);
 void add_to_DB(const Tower* tw, Data_base* db);
 void create_DB(Data_base *db);
 void delDB(Data_base *db);
@@ -34,7 +34,7 @@ void print_DB(const Data_base* db);
 
 
 
-void __print_Tower(const Tower* tw) {
+void print_Tower(const Tower* tw) {
     printf("%d\n", tw->floors);
     printf("%f\n", tw->height);
     printf("%f\n", tw->spire);
@@ -43,7 +43,7 @@ void __print_Tower(const Tower* tw) {
     printf("%s\n", " ");         //перевод на новую строку
 }
 
-void __add_to_List(List *li,const Tower* el) {
+void add_to_list(List *li,const Tower* el) {
     if (li==NULL){
         perror("Database is not created");
         return;
@@ -80,13 +80,13 @@ void __add_to_List(List *li,const Tower* el) {
 
 }
 
-void __print_List(const List *li) {
+void print_List(const List *li) {
     if (li==NULL){
         perror("Database is not created");
         return;
     }
     for (size_t i = 0; i < li->real_size; i++) {      //если массив пустой то мы ничего не запринтим
-        __print_Tower(&li->arr[i]);
+        print_Tower(&li->arr[i]);
     }
 }
 
@@ -98,7 +98,7 @@ void print_DB(const Data_base* db) {
     }
     for (size_t i = 0; i < possible_target_count; i++) {
         for (size_t j = 0; j < possible_region_count; j++) {
-            __print_List(db->list[i][j]);     //принтим все массивы внутри матрицы
+            print_List(db->list[i][j]);     //принтим все массивы внутри матрицы
         }
     }
 }
@@ -149,7 +149,7 @@ void add_to_DB(const Tower *tw, Data_base *db) {
     else if (strncmp(tw->region, "SWA", 3) == 0) region_purpose = 2;
     ///////
 
-    __add_to_List(db->list[target_purpose][region_purpose],tw);              //вставляем Tower в необходимое место, найденное раньше
+    add_to_list(db->list[target_purpose][region_purpose],tw);              //вставляем Tower в необходимое место, найденное раньше
 
 
 }
@@ -185,5 +185,6 @@ void test(){
 
 
 int main() {
+
     test();
 }
