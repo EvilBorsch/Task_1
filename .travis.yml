@@ -60,9 +60,6 @@ script:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget -q https://github.com/catchorg/Catch2/releases/download/v2.2.3/catch.hpp ; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then g++ -g -o0 -coverage -Wall -Wextra -Werror main.c -o test ; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all ./main ; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lcov --directory . --capture --output-file coverage.info ; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lcov --remove coverage.info 'catch.hpp' '/usr/*' --output-file coverage.info ; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lcov --list coverage.info ; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then uname -a ; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then g++ --version ; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then valgrind --version ; fi
@@ -72,7 +69,6 @@ script:
     - cd build
     - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU
     - cmake --build .
-    - ctest --output-on-failure
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
