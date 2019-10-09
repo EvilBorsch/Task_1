@@ -1,3 +1,11 @@
+/*
+ * Создать структуру для хранения информации о небоскребах мира: количестве этажей, общей высоте,
+ * высоте шпиля и назначении здания,
+ * а также регионе расположения. Составить с ее использованием программу вывода информации
+ * обо всех зданиях с группировкой сначала по назначению (офисные, гостиничные и т.д.),
+ * затем — по региону расположения (Европа, Ближний Восток, Юго-Восточная Азия и т.д.).
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,8 +37,15 @@ void print_Tower(const Tower* tw);
 void print_List(const List *li);
 void add_to_DB(const Tower* tw, Data_base* db);
 void create_DB(Data_base *db);
-void delDB(Data_base *db);
+void del_DB(Data_base *db);
 void print_DB(const Data_base* db);
+void test();
+
+
+
+int main() {
+    test();
+}
 
 
 
@@ -121,7 +136,7 @@ void create_DB(Data_base *db) {
     }
 }
 
-void delDB(Data_base *db) {
+void del_DB(Data_base *db) {
     if (db==NULL) {
         perror("DB IS NOT CREATED");
         return;
@@ -154,8 +169,7 @@ void add_to_DB(const Tower *tw, Data_base *db) {
 
 }
 
-
-void test(){
+void test() {
     Data_base db;
     create_DB(&db);
 
@@ -178,13 +192,6 @@ void test(){
     add_to_DB(&test8, &db);
     add_to_DB(&test9, &db);
     print_DB(&db);
-    delDB(&db);
+    del_DB(&db);
 
-}
-
-
-
-int main() {
-
-    test();
 }
