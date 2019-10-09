@@ -155,7 +155,7 @@ void add_to_DB(const Tower *tw, Data_base *db) {
 }
 
 
-int main() {
+void test(){
     Data_base db;
     create_DB(&db);
 
@@ -178,7 +178,12 @@ int main() {
     add_to_DB(&test8, &db);
     add_to_DB(&test9, &db);
     print_DB(&db);
-
     delDB(&db);
 
+}
+
+
+
+int main() {
+    test();
 }
