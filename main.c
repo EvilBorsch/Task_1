@@ -6,11 +6,12 @@
  * затем — по региону расположения (Европа, Ближний Восток, Юго-Восточная Азия и т.д.).
  */
 
+#include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <errno.h>
+
 
 typedef struct {
     int floors;
@@ -85,6 +86,7 @@ void add_to_list(List *li,const Tower* el) {
 void print_List(const List *li) {
     if (li==NULL){
         perror("Database is not created");
+        errno=EDOM;
         return;
     }
     for (size_t i = 0; i < li->real_size; i++) {      //если массив пустой то мы ничего не запринтим
@@ -122,6 +124,7 @@ bool compare(Tower a, Tower b) {
 void insertion_sort(List *mass, bool (*compare)(Tower, Tower)) {
     if (mass==NULL){
         perror("mass is empty");
+        errno=EDOM;
         return;
     }
 
@@ -139,6 +142,7 @@ void insertion_sort(List *mass, bool (*compare)(Tower, Tower)) {
 
 void print_Tower(const Tower *tw) {
     if (tw==NULL){
+        errno=EDOM;
         perror("Empty Tower");
         return;
     }
@@ -174,7 +178,7 @@ List* input_List_from_keyboard(){
 
 
 void test() {
-    
+
     Tower test = {1, 2, 3, "abc", "cus"};
     Tower test2 = {3, 2, 2, "b", "Alu"};
     Tower test3 = {3, 2, 5, "abc", "cus"};
@@ -198,10 +202,9 @@ void test() {
     add_to_list(li,&test9);
     print_List(li);
     del_list(li);
-    /*
-    List* li2=input_List_from_keyboard();
-    print_List(li2);
-    del_list(li2);
-    */
+
+    //List* li2=input_List_from_keyboard();
+    //print_List(li2);
+    //del_list(li2);
 }
 
