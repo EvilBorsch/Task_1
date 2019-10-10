@@ -6,12 +6,11 @@
  * затем — по региону расположения (Европа, Ближний Восток, Юго-Восточная Азия и т.д.).
  */
 
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-
+#include <errno.h>
 
 typedef struct {
     int floors;
@@ -95,7 +94,7 @@ void print_List(const List *li) {
 
 
 List* create_list(const size_t arr_size,Tower* arr) {
-    List* temp=malloc(sizeof(List));
+    List* temp=(List*) malloc(sizeof(List));
     temp->buffer_size=arr_size;
     temp->real_size=arr_size;
     temp->arr=arr;
@@ -152,7 +151,7 @@ void print_Tower(const Tower *tw) {
 }
 
 List* input_List_from_keyboard(){
-    List* temp_li=malloc(sizeof(List));
+    List* temp_li=(List*)malloc(sizeof(List));
     int arr_size;
     scanf("%d",&arr_size);
 
@@ -163,10 +162,10 @@ List* input_List_from_keyboard(){
         scanf("%f", &temp.height);
         scanf("%f", &temp.spire);
         scanf("%1023s", buffer);
-        temp.target = malloc(sizeof(strlen(buffer)));
+        temp.target = (char*) malloc(sizeof(char)*strlen(buffer));
         strcpy(temp.target, buffer);
         scanf("%1023s", buffer);
-        temp.region = malloc(sizeof(strlen(buffer)));
+        temp.region = (char*) malloc(sizeof(char)*strlen(buffer));
         strcpy(temp.region, buffer);
         add_to_list(temp_li, &temp);
     }
@@ -175,7 +174,7 @@ List* input_List_from_keyboard(){
 
 
 void test() {
-    
+
     Tower test = {1, 2, 3, "abc", "cus"};
     Tower test2 = {3, 2, 2, "b", "Alu"};
     Tower test3 = {3, 2, 5, "abc", "cus"};
@@ -186,7 +185,7 @@ void test() {
     Tower test8 = {3, 2, 5, "asdasdas", "qqqq"};
     Tower test9 = {3, 2, 5, "asdasdas", "SWA"};
     size_t a=3;
-    Tower* arr=malloc(sizeof(Tower)*a);
+    Tower* arr=(Tower*) malloc(sizeof(Tower)*a);
     arr[0]=test;
     arr[1]=test2;
     arr[2]=test3;
@@ -199,7 +198,7 @@ void test() {
     add_to_list(li,&test9);
     print_List(li);
     del_list(li);
-     
+
     //List* li2=input_List_from_keyboard();
     //print_List(li2);
     //del_list(li2);
