@@ -6,20 +6,19 @@
  * затем — по региону расположения (Европа, Ближний Восток, Юго-Восточная Азия и т.д.).
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define possible_target_count 3 //офисные,гостиничные, другие(другие это 3 тип)
-#define possible_region_count 4  //Европа,ближний восток, юго восточная азия, другие(другие это 4 тип)
+#include <stdbool.h>
 
 
 typedef struct {
     int floors;
     float height;
     float spire;
-    const char *target;
-    const char *region;
+    char *target;
+    char *region;
 } Tower;
 
 typedef struct {
@@ -28,19 +27,13 @@ typedef struct {
     size_t buffer_size;
 } List;
 
-typedef struct{
-    List *list[possible_target_count][possible_region_count];         //двумерный массив,внутри каждой ячейки которого наши продвинутые List'ы
-} Data_base;
 
 void add_to_list(List *li,const Tower* el);
 void print_Tower(const Tower* tw);
 void print_List(const List *li);
-void add_to_DB(const Tower* tw, Data_base* db);
-void create_DB(Data_base *db);
-void del_DB(Data_base *db);
-void print_DB(const Data_base* db);
+bool compare(Tower a,Tower b);
+void insertion_sort(List* mass,bool (compare)(Tower,Tower));
 void test();
-
 
 
 int main() {
@@ -49,24 +42,17 @@ int main() {
 
 
 
-void print_Tower(const Tower* tw) {
-    printf("%d\n", tw->floors);
-    printf("%f\n", tw->height);
-    printf("%f\n", tw->spire);
-    printf("%s\n", tw->target);
-    printf("%s\n", tw->region);
-    printf("%s\n", " ");         //перевод на новую строку
-}
-
 void add_to_list(List *li,const Tower* el) {
     if (li==NULL){
         perror("Database is not created");
+        errno=EDOM;
         return;
     }
-    if ((li->real_size == 0 && li->buffer_size == 0)) {      //если массив пустой, то нужно воткнуть первый элемент
+    if ((li->real_size == 0 && li->buffer_size == 0)) {      //если массив пустой, то нужно вставить первый элемент
         Tower* temp= (Tower *) malloc(sizeof(Tower));
         if (temp==NULL) {
-            perror("OS didnt give memory");               //Память не выделилась- запишем что была ошибка + старые данные спасём(они не обнулятся)
+            perror("OS didnt give memory");
+            errno=EDOM;
             return;
         }
         else li->arr=temp;
@@ -76,22 +62,24 @@ void add_to_list(List *li,const Tower* el) {
         return;
     }
 
-    if (li->real_size == li->buffer_size) {            //если буффер заполнился увеличиваем размер в два раза
+    if (li->real_size == li->buffer_size) {
         li->buffer_size *= 2;
         Tower* temp= (Tower*) realloc(li->arr, li->buffer_size * sizeof(Tower));
         if (temp==NULL){
             perror("OS didnt give memory");
             free(temp);
+            errno=EDOM;
             return;
-        }                                         //Если память не выделилась, спасаем старые данные
+        }
         else {
             li->arr = temp;
         }
 
     }
+
     li->real_size++;
     li->arr[li->real_size-1] = *el;
-
+    insertion_sort(li,compare);
 
 }
 
@@ -106,92 +94,114 @@ void print_List(const List *li) {
 }
 
 
-void print_DB(const Data_base* db) {
-    if (db==NULL){
-        perror("Database is not created");
+List* create_list(const size_t arr_size,Tower* arr) {
+    List* temp=malloc(sizeof(List));
+    temp->buffer_size=arr_size;
+    temp->real_size=arr_size;
+    temp->arr=arr;
+    insertion_sort(temp,compare);
+    return temp;
+}
+
+
+void del_list(List* li){
+    free(li->arr);
+    free(li);
+}
+
+
+bool compare(Tower a, Tower b) {
+    int result=strcasecmp(a.target,b.target);
+    if (result==0){
+        return strcasecmp(a.region,b.region)>0;
+    }
+    else{
+        return result>0;
+    }
+}
+
+void insertion_sort(List *mass, bool (*compare)(Tower, Tower)) {
+    if (mass==NULL){
+        perror("mass is empty");
         return;
     }
-    for (size_t i = 0; i < possible_target_count; i++) {
-        for (size_t j = 0; j < possible_region_count; j++) {
-            print_List(db->list[i][j]);     //принтим все массивы внутри матрицы
+
+    Tower temp;
+    for (size_t counter = 1; counter < mass->real_size; counter++){
+        temp = mass->arr[counter];
+        int item =(int) counter-1;
+        while(item >= 0 && compare(mass->arr[item],temp)){
+            mass->arr[item + 1] = mass->arr[item]; // перестановка элементов массива
+            mass->arr[item] = temp;
+            item--;
         }
     }
 }
 
-void create_DB(Data_base *db) {
-
-    for (size_t i = 0; i < possible_target_count; i++) {
-        for (size_t j = 0; j < possible_region_count; j++) {
-            List *temp = (List *) malloc(sizeof(Tower));
-            if (temp==NULL) {
-                perror("OS didnt give memory");                //Выводим ошибку если память не выделилась
-                return;
-            }
-            temp->arr=NULL;
-            temp->buffer_size = 0;
-            temp->real_size = 0;                                      //заполняем матрицу для хранения небоскребов пустыми массивами
-            db->list[i][j] = temp;
-
-        }
-    }
-}
-
-void del_DB(Data_base *db) {
-    if (db==NULL) {
-        perror("DB IS NOT CREATED");
+void print_Tower(const Tower *tw) {
+    if (tw==NULL){
+        perror("Empty Tower");
         return;
     }
-    for (size_t i = 0; i < possible_target_count; i++) {
-        for (size_t j = 0; j < possible_region_count; j++) {
-            free(db->list[i][j]->arr);
-            free(db->list[i][j]);
-        }
+    printf("%d\n", tw->floors);
+    printf("%f\n", tw->height);
+    printf("%f\n", tw->spire);
+    printf("%s\n", tw->target);
+    printf("%s\n", tw->region);
+    printf("%s\n", " ");
+}
+
+List* input_List_from_keyboard(){
+    List* temp_li=malloc(sizeof(List));
+    int arr_size;
+    scanf("%d",&arr_size);
+
+    char buffer[1024];
+    for (int i=0;i<arr_size;i++) {
+        Tower temp;
+        scanf("%d", &temp.floors);
+        scanf("%f", &temp.height);
+        scanf("%f", &temp.spire);
+        scanf("%1023s", buffer);
+        temp.target = malloc(sizeof(strlen(buffer)));
+        strcpy(temp.target, buffer);
+        scanf("%1023s", buffer);
+        temp.region = malloc(sizeof(strlen(buffer)));
+        strcpy(temp.region, buffer);
+        add_to_list(temp_li, &temp);
     }
+    return temp_li;
 }
 
-void add_to_DB(const Tower *tw, Data_base *db) {
-    ////Выбираем место в базе данных для того чтобы вставить в зависимости от региона и типа
-    size_t other_targets_index=2;
-    size_t other_regions_index=3;
-
-    size_t target_purpose = other_targets_index; //двойка для не оффисных и не отельных зданий(если след проверки не пройдут, значит здание другое)
-    if (strncmp(tw->target, "office", 6) == 0) target_purpose = 0;
-    else if (strncmp(tw->target, "hotel", 5) == 0) target_purpose = 1;
-
-    size_t region_purpose = other_regions_index; //тройка если другой регион (например RU)
-    if (strncmp(tw->region, "EU", 2) == 0) region_purpose = 0;
-    else if (strncmp(tw->region, "ME", 2) == 0) region_purpose = 1;
-    else if (strncmp(tw->region, "SWA", 3) == 0) region_purpose = 2;
-    ///////
-
-    add_to_list(db->list[target_purpose][region_purpose],tw);              //вставляем Tower в необходимое место, найденное раньше
-
-
-}
 
 void test() {
-    Data_base db;
-    create_DB(&db);
-
-    Tower test = {1, 2, 3, "hotel", "EU"};
-    Tower test2 = {3, 2, 2, "office", "asd"};
-    Tower test3 = {3, 2, 5, "office", "ME"};
-    Tower test4 = {3, 2, 5, "office", "EU"};
-    Tower test5 = {1, 2, 3, "hotel", "dasdasd"};
+    
+    Tower test = {1, 2, 3, "abc", "cus"};
+    Tower test2 = {3, 2, 2, "b", "Alu"};
+    Tower test3 = {3, 2, 5, "abc", "cus"};
+    Tower test4 = {3, 2, 5, "b", "Blu"};
+    Tower test5 = {1, 2, 3, "abc", "q"};
     Tower test6 = {3, 2, 123123, "office", "EU"};
-    Tower test7 = {3, 2, 5, "hotel", "SWA"};
+    Tower test7 = {3, 2, 5, "abc", "als"};
     Tower test8 = {3, 2, 5, "asdasdas", "qqqq"};
     Tower test9 = {3, 2, 5, "asdasdas", "SWA"};
-    add_to_DB(&test, &db);
-    add_to_DB(&test2, &db);
-    add_to_DB(&test3, &db);
-    add_to_DB(&test4, &db);
-    add_to_DB(&test5, &db);
-    add_to_DB(&test6, &db);
-    add_to_DB(&test7, &db);
-    add_to_DB(&test8, &db);
-    add_to_DB(&test9, &db);
-    print_DB(&db);
-    del_DB(&db);
-
+    size_t a=3;
+    Tower* arr=malloc(sizeof(Tower)*a);
+    arr[0]=test;
+    arr[1]=test2;
+    arr[2]=test3;
+    List* li=create_list(a,arr);
+    add_to_list(li,&test4);
+    add_to_list(li,&test5);
+    add_to_list(li,&test6);
+    add_to_list(li,&test7);
+    add_to_list(li,&test8);
+    add_to_list(li,&test9);
+    print_List(li);
+    del_list(li);
+     
+    //List* li2=input_List_from_keyboard();
+    //print_List(li2);
+    //del_list(li2);
 }
+
