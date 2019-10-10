@@ -153,14 +153,14 @@ void print_Tower(const Tower *tw) {
 List* input_List_from_keyboard(){
     List* temp_li=(List*)malloc(sizeof(List));
     int arr_size;
-    scanf("%d",&arr_size);
+    scanf("%100d",&arr_size);
 
     char buffer[1024];
     for (int i=0;i<arr_size;i++) {
         Tower temp;
-        scanf("%d", &temp.floors);
-        scanf("%f", &temp.height);
-        scanf("%f", &temp.spire);
+        scanf("%100d", &temp.floors);
+        scanf("%100f", &temp.height);
+        scanf("%100f", &temp.spire);
         scanf("%1023s", buffer);
         temp.target = (char*) malloc(sizeof(char)*strlen(buffer));
         strcpy(temp.target, buffer);
@@ -174,7 +174,7 @@ List* input_List_from_keyboard(){
 
 
 void test() {
-
+    
     Tower test = {1, 2, 3, "abc", "cus"};
     Tower test2 = {3, 2, 2, "b", "Alu"};
     Tower test3 = {3, 2, 5, "abc", "cus"};
@@ -198,9 +198,10 @@ void test() {
     add_to_list(li,&test9);
     print_List(li);
     del_list(li);
-
-    //List* li2=input_List_from_keyboard();
-    //print_List(li2);
-    //del_list(li2);
+    /*
+    List* li2=input_List_from_keyboard();
+    print_List(li2);
+    del_list(li2);
+    */
 }
 
